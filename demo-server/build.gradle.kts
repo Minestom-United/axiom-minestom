@@ -11,8 +11,8 @@ repositories {
 }
 
 dependencies {
-    implementation("net.minestom:minestom:2025.09.13-1.21.8")
-    implementation("fr.ghostrider584:axiom-minestom:0.0.3")
+    implementation(project(":"))
+    implementation("net.minestom:minestom:2025.12.20-1.21.11")
     implementation("ch.qos.logback:logback-classic:1.5.16")
 }
 
