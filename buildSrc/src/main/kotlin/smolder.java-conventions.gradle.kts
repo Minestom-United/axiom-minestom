@@ -3,8 +3,8 @@ plugins {
     id("java-library")
 }
 
-var smolderUsername = project.property("smolderUsername") as String?
-var smolderPassword = project.property("smolderPassword") as String?
+var smolderUsername: String? = findProperty("smolderUsername") as String?
+var smolderPassword: String? = findProperty("smolderPassword") as String?
 val publicRepository: String by project
 
 repositories {
