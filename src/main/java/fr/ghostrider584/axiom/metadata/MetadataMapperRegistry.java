@@ -14,11 +14,12 @@ import net.minestom.server.registry.Registries;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
-import static fr.ghostrider584.axiom.metadata.MetadataCodecs.*;
+import static fr.ghostrider584.axiom.metadata.MetadataMappers.*;
 import static fr.ghostrider584.axiom.metadata.MetadataMapping.*;
 
-public final class MetadataCodecRegistry {
-	private static final Map<Class<? extends EntityMeta>, MetadataCodec<?>> REGISTRY = new ConcurrentHashMap<>();
+public final class MetadataMapperRegistry {
+	private static final Map<Class<? extends EntityMeta>, MetadataMapper<?>> REGISTRY = new ConcurrentHashMap<>();
+	private static final Map<Class<? extends EntityMeta>, MetadataMapper<?>> LOOKUP_CACHE = new ConcurrentHashMap<>();
 
 	static {
 		register(EntityMeta.class, EntityMetaCodec.ENTITY);
@@ -30,22 +31,38 @@ public final class MetadataCodecRegistry {
 				registry("variant", MetadataDef.Pig.VARIANT, Registries::pigVariant)));
 	}
 
-	public static <T extends EntityMeta> void register(Class<T> metaClass, MetadataCodec<T> codec) {
+	public static <T extends EntityMeta> void register(Class<T> metaClass, MetadataMapper<T> codec) {
 		REGISTRY.put(metaClass, codec);
+		LOOKUP_CACHE.clear();
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends EntityMeta> MetadataCodec<T> get(Class<T> metaClass) {
-		final var codec = (MetadataCodec<T>) REGISTRY.get(metaClass);
-		if (codec != null) {
-			return codec;
+	public static <T extends EntityMeta> MetadataMapper<T> get(Class<T> metaClass) {
+		return (MetadataMapper<T>) LOOKUP_CACHE.computeIfAbsent(metaClass, MetadataMapperRegistry::findCodec);
+	}
+
+	private static MetadataMapper<?> findCodec(Class<? extends EntityMeta> metaClass) {
+		final var direct = REGISTRY.get(metaClass);
+		if (direct != null) {
+			return direct;
 		}
 
-		// try to find a codec for a superclass
+		// walk class hierarchy to find most specific match
+		MetadataMapper<?> bestMatch = null;
+		Class<?> bestMatchClass = null;
+
 		for (final var entry : REGISTRY.entrySet()) {
-			if (entry.getKey().isAssignableFrom(metaClass)) {
-				return (MetadataCodec<T>) entry.getValue();
+			final var registeredClass = entry.getKey();
+			if (registeredClass.isAssignableFrom(metaClass)) {
+				if (bestMatchClass == null || bestMatchClass.isAssignableFrom(registeredClass)) {
+					bestMatch = entry.getValue();
+					bestMatchClass = registeredClass;
+				}
 			}
+		}
+
+		if (bestMatch != null) {
+			return bestMatch;
 		}
 
 		throw new IllegalArgumentException("No codec found for " + metaClass);
@@ -53,13 +70,13 @@ public final class MetadataCodecRegistry {
 
 	@SuppressWarnings("unchecked")
 	public static <T extends EntityMeta> void applyNBT(T meta, CompoundBinaryTag nbt) {
-		final var codec = (MetadataCodec<T>) get(meta.getClass());
+		final var codec = (MetadataMapper<T>) get(meta.getClass());
 		codec.applyFromNBT(meta, nbt);
 	}
 
 	@SuppressWarnings("unchecked")
 	public static <T extends EntityMeta> CompoundBinaryTag toNBT(T meta) {
-		final var codec = (MetadataCodec<T>) get(meta.getClass());
+		final var codec = (MetadataMapper<T>) get(meta.getClass());
 		return codec.toNBT(meta);
 	}
 }
