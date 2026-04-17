@@ -9,7 +9,7 @@ import java.util.List;
 
 public record UpdateAnnotationMessage(
 		List<AnnotationUpdateAction> actions
-) implements ClientPacket {
+) implements ClientPacket.Play {
 
 	public UpdateAnnotationMessage {
 		actions = List.copyOf(actions);

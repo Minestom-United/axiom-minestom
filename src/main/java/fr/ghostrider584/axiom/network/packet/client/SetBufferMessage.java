@@ -13,7 +13,7 @@ public record SetBufferMessage(
 		UUID bufferUuid,
 		byte bufferType,
 		NetworkBuffer bufferData
-) implements ClientPacket {
+) implements ClientPacket.Play {
 
 	public static final NetworkBuffer.Type<SetBufferMessage> TYPE = new NetworkBuffer.Type<>() {
 		@Override

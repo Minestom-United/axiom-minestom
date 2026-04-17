@@ -5,7 +5,7 @@ import net.minestom.server.network.packet.client.ClientPacket;
 
 import static net.minestom.server.network.NetworkBuffer.*;
 
-public record SetGameModeMessage(byte gameMode) implements ClientPacket {
+public record SetGameModeMessage(byte gameMode) implements ClientPacket.Play {
 
 	public static final Type<SetGameModeMessage> TYPE = NetworkBufferTemplate.template(
 			BYTE, SetGameModeMessage::gameMode,

@@ -10,7 +10,7 @@ import java.util.UUID;
 
 import static net.minestom.server.network.NetworkBuffer.*;
 
-public record SpawnEntityMessage(List<SpawnEntry> entries) implements ClientPacket {
+public record SpawnEntityMessage(List<SpawnEntry> entries) implements ClientPacket.Play {
 
 	public SpawnEntityMessage {
 		entries = List.copyOf(entries);

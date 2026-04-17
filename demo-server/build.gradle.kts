@@ -7,12 +7,17 @@ version = "0.0.3"
 
 repositories {
     mavenLocal()
+    maven(url = "https://central.sonatype.com/repository/maven-snapshots/") {
+        content {
+            includeModule("net.minestom", "minestom")
+        }
+    }
     mavenCentral()
 }
 
 dependencies {
     implementation(project(":"))
-    implementation("net.minestom:minestom:2025.12.20-1.21.11")
+    implementation("net.minestom:minestom:26_1-SNAPSHOT")
     implementation("ch.qos.logback:logback-classic:1.5.16")
 }
 
