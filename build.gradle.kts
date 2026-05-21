@@ -3,16 +3,11 @@ plugins {
 }
 
 repositories {
-    maven(url = "https://central.sonatype.com/repository/maven-snapshots/") {
-        content {
-            includeModule("net.minestom", "minestom")
-        }
-    }
     mavenCentral()
 }
 
 dependencies {
-    compileOnly("net.minestom:minestom:26_1-SNAPSHOT")
+    compileOnly("net.minestom:minestom:2026.05.17c-26.1.1")
     api("org.slf4j:slf4j-api:2.0.16")
     api("com.github.luben:zstd-jni:1.5.7-4")
 }
