@@ -11,7 +11,7 @@ import static net.minestom.server.network.NetworkBuffer.*;
 public record TeleportMessage(
 		Key dimension,
 		Pos position
-) implements ClientPacket {
+) implements ClientPacket.Play {
 
 	public static final NetworkBuffer.Type<TeleportMessage> TYPE = NetworkBufferTemplate.template(
 			KEY, TeleportMessage::dimension,

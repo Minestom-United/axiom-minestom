@@ -12,7 +12,7 @@ import static net.minestom.server.network.NetworkBuffer.*;
 public record RequestEntityDataMessage(
 		long requestId,
 		List<UUID> entityUuids
-) implements ClientPacket {
+) implements ClientPacket.Play {
 
 	public RequestEntityDataMessage {
 		entityUuids = List.copyOf(entityUuids);

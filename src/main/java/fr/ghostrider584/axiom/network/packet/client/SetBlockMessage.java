@@ -24,7 +24,7 @@ public record SetBlockMessage(
 		BlockHitResult blockHit,
 		PlayerHand hand,
 		int sequenceId
-) implements ClientPacket {
+) implements ClientPacket.Play {
 
 	public SetBlockMessage {
 		blocks = Map.copyOf(blocks);

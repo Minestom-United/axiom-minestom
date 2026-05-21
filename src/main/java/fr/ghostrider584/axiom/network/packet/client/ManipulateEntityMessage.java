@@ -18,7 +18,7 @@ import static net.minestom.server.network.NetworkBuffer.*;
 // todo: refactor & clean up
 public record ManipulateEntityMessage(
 		List<ManipulateEntry> entries
-) implements ClientPacket {
+) implements ClientPacket.Play {
 
 	public ManipulateEntityMessage {
 		entries = List.copyOf(entries);

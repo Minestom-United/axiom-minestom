@@ -16,48 +16,48 @@ import net.minestom.server.instance.block.BlockFace;
 
 public class SetBlockHandler implements IncomingMessageHandler<SetBlockMessage> {
 
-	@Override
-	public void handle(Player player, String channel, SetBlockMessage packet) {
-		if (!AxiomMinestom.isAxiomPlayer(player)) {
-			return;
-		}
+    @Override
+    public void handle(Player player, String channel, SetBlockMessage packet) {
+        if (!AxiomMinestom.isAxiomPlayer(player)) {
+            return;
+        }
 
-		final var instance = player.getInstance();
-		if (instance == null) {
-			return;
-		}
+        final var instance = player.getInstance();
+        if (instance == null) {
+            return;
+        }
 
-		if (packet.breaking()) {
-			handleBlockBreaking(player, instance, packet);
-		} else {
-			handleBlockPlacing(player, instance, packet);
-		}
-	}
+        if (packet.breaking()) {
+            handleBlockBreaking(player, instance, packet);
+        } else {
+            handleBlockPlacing(player, instance, packet);
+        }
+    }
 
-	private void handleBlockBreaking(Player player, Instance instance, SetBlockMessage packet) {
-		for (final var entry : packet.blocks().entrySet()) {
-			final var position = entry.getKey();
-			final var currentBlock = instance.getBlock(position);
+    private void handleBlockBreaking(Player player, Instance instance, SetBlockMessage packet) {
+        for (final var entry : packet.blocks().entrySet()) {
+            final var position = entry.getKey();
+            final var currentBlock = instance.getBlock(position);
 
-			final var blockFace = BlockFace.fromDirection(packet.blockHit().direction());
-			final var breakEvent = new PlayerBlockBreakEvent(player, currentBlock, currentBlock, new BlockVec(position), blockFace);
-			EventDispatcher.callCancellable(breakEvent, () -> {
-				instance.setBlock(position, Block.AIR, packet.updateNeighbors());
-			});
-		}
-	}
+            final var blockFace = BlockFace.fromDirection(packet.blockHit().direction());
+            final var breakEvent = new PlayerBlockBreakEvent(player, instance, currentBlock, currentBlock, position.asBlockVec(), blockFace);
+            EventDispatcher.callCancellable(breakEvent,
+                    () -> instance.setBlock(position, Block.AIR, packet.updateNeighbors())
+            );
+        }
+    }
 
-	private void handleBlockPlacing(Player player, Instance instance, SetBlockMessage packet) {
-		for (final var entry : packet.blocks().entrySet()) {
-			final var position = entry.getKey();
-			final var newBlock = entry.getValue();
+    private void handleBlockPlacing(Player player, Instance instance, SetBlockMessage packet) {
+        for (final var entry : packet.blocks().entrySet()) {
+            final var position = entry.getKey();
+            final var newBlock = entry.getValue();
 
-			final var blockFace = BlockFace.fromDirection(packet.blockHit().direction());
-			final var placeEvent = new PlayerBlockPlaceEvent(player, newBlock, blockFace, new BlockVec(position), Vec.ZERO, packet.hand());
-			EventDispatcher.callCancellable(placeEvent, () -> {
-				final var preventUpdates = !packet.updateNeighbors() || packet.preventUpdatesAt().contains(position);
-				instance.setBlock(position, newBlock, preventUpdates);
-			});
-		}
-	}
+            final var blockFace = BlockFace.fromDirection(packet.blockHit().direction());
+            final var placeEvent = new PlayerBlockPlaceEvent(player, instance, newBlock, blockFace, position.asBlockVec(), Vec.ZERO, packet.hand());
+            EventDispatcher.callCancellable(placeEvent, () -> {
+                final var preventUpdates = !packet.updateNeighbors() || packet.preventUpdatesAt().contains(position);
+                instance.setBlock(position, newBlock, preventUpdates);
+            });
+        }
+    }
 }
