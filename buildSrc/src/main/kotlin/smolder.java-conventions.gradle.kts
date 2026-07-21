@@ -3,8 +3,8 @@ plugins {
     id("java-library")
 }
 
-var smolderUsername: String? = findProperty("smolderUsername") as String?
-var smolderPassword: String? = findProperty("smolderPassword") as String?
+var smolderUsername: String? = System.getenv("REPO_USERNAME")
+var smolderPassword: String? = System.getenv("REPO_PASSWORD")
 val publicRepository: String by project
 
 repositories {
