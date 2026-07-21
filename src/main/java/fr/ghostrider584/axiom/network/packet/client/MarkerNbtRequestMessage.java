@@ -10,7 +10,7 @@ import static net.minestom.server.network.NetworkBuffer.*;
 public record MarkerNbtRequestMessage(
 		UUID uuid,
 		int reason
-) implements ClientPacket {
+) implements ClientPacket.Play {
 
 	public static final Type<MarkerNbtRequestMessage> TYPE = NetworkBufferTemplate.template(
 			UUID, MarkerNbtRequestMessage::uuid,

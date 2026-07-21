@@ -3,11 +3,11 @@ package fr.ghostrider584.axiom.metadata;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.minestom.server.entity.metadata.EntityMeta;
 
-final class ExtendedMetadataCodec<T extends EntityMeta> implements MetadataCodec<T> {
-	private final MetadataCodec<? super T> base;
-	private final MetadataCodec<T> additional;
+final class CompositeMetadataMapper<T extends EntityMeta> implements MetadataMapper<T> {
+	private final MetadataMapper<? super T> base;
+	private final MetadataMapper<T> additional;
 
-	ExtendedMetadataCodec(MetadataCodec<? super T> base, MetadataCodec<T> additional) {
+	CompositeMetadataMapper(MetadataMapper<? super T> base, MetadataMapper<T> additional) {
 		this.base = base;
 		this.additional = additional;
 	}

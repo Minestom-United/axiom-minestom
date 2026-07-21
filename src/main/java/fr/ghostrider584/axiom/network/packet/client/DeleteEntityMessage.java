@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import static net.minestom.server.network.NetworkBuffer.*;
 
-public record DeleteEntityMessage(List<UUID> entityUuids) implements ClientPacket {
+public record DeleteEntityMessage(List<UUID> entityUuids) implements ClientPacket.Play {
 
 	public DeleteEntityMessage {
 		entityUuids = List.copyOf(entityUuids);

@@ -8,9 +8,9 @@ import org.jetbrains.annotations.NotNull;
 
 public record MetadataMapping<T>(
 		@NotNull String path,
-		@NotNull MetadataDef.Entry<T> metadataEntry,
+		@NotNull MetadataDef.Entry<T> entry,
 		@NotNull Codec<T> codec
-) {
+) implements MappingEntry<T> {
 
 	public static <T> MetadataMapping<RegistryKey<T>> registry(String path, MetadataDef.Entry<RegistryKey<T>> entry, Registries.Selector<T> selector) {
 		return new MetadataMapping<>(path, entry, RegistryKey.codec(selector));

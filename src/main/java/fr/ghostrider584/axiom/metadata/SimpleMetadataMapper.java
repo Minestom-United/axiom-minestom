@@ -3,23 +3,19 @@ package fr.ghostrider584.axiom.metadata;
 import net.kyori.adventure.nbt.BinaryTag;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.codec.Codec;
 import net.minestom.server.codec.Result;
 import net.minestom.server.codec.Transcoder;
 import net.minestom.server.entity.metadata.EntityMeta;
 import net.minestom.server.registry.RegistryTranscoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-final class SimpleMetadataCodec<T extends EntityMeta> implements MetadataCodec<T> {
-	private static final Logger LOGGER = LoggerFactory.getLogger(SimpleMetadataCodec.class);
+final class SimpleMetadataMapper<T extends EntityMeta> implements MetadataMapper<T> {
 	private static final Transcoder<BinaryTag> REGISTRY_NBT_TRANSCODER = new RegistryTranscoder<>(Transcoder.NBT, MinecraftServer.process());
 
-	private final List<MetadataMapping<?>> mappings;
+	private final List<? extends MappingEntry<?>> mappings;
 
-	SimpleMetadataCodec(List<MetadataMapping<?>> mappings) {
+	SimpleMetadataMapper(List<? extends MappingEntry<?>> mappings) {
 		this.mappings = List.copyOf(mappings);
 	}
 
@@ -34,36 +30,40 @@ final class SimpleMetadataCodec<T extends EntityMeta> implements MetadataCodec<T
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public CompoundBinaryTag toNBT(T meta) {
 		final var holder = MetadataFieldAccessor.getMetadataHolder(meta);
 
-		var rootTag = CompoundBinaryTag.empty(); // TODO: use builder ?
+		var rootTag = CompoundBinaryTag.empty();
 		for (final var mapping : mappings) {
-			final var value = holder.get(mapping.metadataEntry());
-
-			final var encoded = ((Codec<Object>) mapping.codec()).encode(REGISTRY_NBT_TRANSCODER, value);
-			if (encoded instanceof Result.Ok<BinaryTag>(BinaryTag tag)) {
-				rootTag = setNestedValue(rootTag, mapping.path(), tag);
-			} else if (encoded instanceof Result.Error<BinaryTag>(String message)) {
-				LOGGER.error("Error encountered while encoding: {}", message);
-			}
+			rootTag = encodeMapping(holder, mapping, rootTag);
 		}
 
 		return rootTag;
 	}
 
-	private <V> void applyMapping(T meta, MetadataMapping<V> mapping, BinaryTag nbtValue) {
+	private <V> CompoundBinaryTag encodeMapping(
+			net.minestom.server.entity.MetadataHolder holder,
+			MappingEntry<V> mapping,
+			CompoundBinaryTag rootTag
+	) {
+		final var value = holder.get(mapping.entry());
+		final var encoded = mapping.codec().encode(REGISTRY_NBT_TRANSCODER, value);
+
+		return switch (encoded) {
+			case Result.Ok<BinaryTag>(BinaryTag tag) -> setNestedValue(rootTag, mapping.path(), tag);
+			case Result.Error<BinaryTag>(String message) ->
+					throw new MetadataMapperException("Failed to encode '" + mapping.path() + "': " + message);
+		};
+	}
+
+	private <V> void applyMapping(T meta, MappingEntry<V> mapping, BinaryTag nbtValue) {
 		final var holder = MetadataFieldAccessor.getMetadataHolder(meta);
-		try {
-			final var decoded = mapping.codec().decode(REGISTRY_NBT_TRANSCODER, nbtValue);
-			if (decoded instanceof Result.Ok<V>(V value)) {
-				holder.set(mapping.metadataEntry(), value);
-			} else if (decoded instanceof Result.Error<V>(String message)) {
-				LOGGER.error("Error encountered while decoding: {}", message);
-			}
-		} catch (Exception e) {
-			LOGGER.warn("Failed to apply mapping {}: {}", mapping.path(), e.getMessage());
+		final var decoded = mapping.codec().decode(REGISTRY_NBT_TRANSCODER, nbtValue);
+
+		switch (decoded) {
+			case Result.Ok<V>(V value) -> holder.set(mapping.entry(), value);
+			case Result.Error<V>(String message) ->
+					throw new MetadataMapperException("Failed to decode '" + mapping.path() + "': " + message);
 		}
 	}
 

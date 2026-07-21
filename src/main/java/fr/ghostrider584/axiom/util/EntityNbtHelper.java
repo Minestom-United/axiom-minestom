@@ -1,6 +1,6 @@
 package fr.ghostrider584.axiom.util;
 
-import fr.ghostrider584.axiom.metadata.MetadataCodecRegistry;
+import fr.ghostrider584.axiom.metadata.MetadataMapperRegistry;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.nbt.TagStringIO;
@@ -50,7 +50,7 @@ public class EntityNbtHelper {
 		}
 
 		applyComponents(entity, axiomData);
-		MetadataCodecRegistry.applyNBT(entity.getEntityMeta(), nbt);
+		MetadataMapperRegistry.applyNBT(entity.getEntityMeta(), nbt);
 
 		if (LOGGER.isTraceEnabled()) {
 			try {

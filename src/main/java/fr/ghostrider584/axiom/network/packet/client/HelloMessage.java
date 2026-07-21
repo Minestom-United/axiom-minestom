@@ -10,7 +10,7 @@ public record HelloMessage(
 		int apiVersion,
 		int dataVersion,
 		int protocolVersion
-) implements ClientPacket {
+) implements ClientPacket.Play {
 
 	public static final NetworkBuffer.Type<HelloMessage> TYPE = NetworkBufferTemplate.template(
 			VAR_INT, HelloMessage::apiVersion,

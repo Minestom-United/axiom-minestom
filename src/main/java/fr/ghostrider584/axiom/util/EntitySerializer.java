@@ -1,6 +1,6 @@
 package fr.ghostrider584.axiom.util;
 
-import fr.ghostrider584.axiom.metadata.MetadataCodecRegistry;
+import fr.ghostrider584.axiom.metadata.MetadataMapperRegistry;
 import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.minestom.server.codec.Codec;
 import net.minestom.server.codec.Result;
@@ -94,7 +94,7 @@ public final class EntitySerializer {
 		private <D> void encodeMetadata(Transcoder<D> transcoder, Transcoder.MapBuilder<D> builder, Entity entity) {
 			try {
 				final var entityMeta = entity.getEntityMeta();
-				final var metadataNbt = MetadataCodecRegistry.toNBT(entityMeta);
+				final var metadataNbt = MetadataMapperRegistry.toNBT(entityMeta);
 				mergeCompound(transcoder, builder, metadataNbt);
 			} catch (Exception e) {
 				LOGGER.warn("Failed to encode metadata for entity {}: {}", entity.getUuid(), e.getMessage());
@@ -137,7 +137,7 @@ public final class EntitySerializer {
 
 		try {
 			final var entityMeta = entity.getEntityMeta();
-			MetadataCodecRegistry.get(entityMeta.getClass());
+			MetadataMapperRegistry.get(entityMeta.getClass());
 			return true;
 		} catch (IllegalArgumentException e) {
 			LOGGER.debug("No metadata codec found for entity type: {}", entity.getEntityType());
